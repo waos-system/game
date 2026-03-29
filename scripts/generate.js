@@ -1,35 +1,52 @@
 const fs = require("fs");
 const path = require("path");
 
-const gamesDir = "games";
-const outputFile = "data/games.json";
-
-const result = [];
+const rootDir = path.resolve(__dirname, "..");
+const gamesDir = path.join(rootDir, "games");
+const outputFile = path.join(rootDir, "data", "games.json");
 
 if (!fs.existsSync(gamesDir)) {
   console.log("games directory not found");
   process.exit(0);
 }
 
-const dirs = fs.readdirSync(gamesDir);
+const result = fs
+  .readdirSync(gamesDir, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => {
+    const dir = entry.name;
+    const gameDir = path.join(gamesDir, dir);
+    const metaPath = path.join(gameDir, "meta.json");
+    const indexPath = path.join(gameDir, "index.html");
 
-dirs.forEach(dir => {
-  const metaPath = path.join(gamesDir, dir, "meta.json");
+    if (!fs.existsSync(indexPath)) {
+      return null;
+    }
 
-  if (fs.existsSync(metaPath)) {
-    const meta = JSON.parse(fs.readFileSync(metaPath, "utf-8"));
+    let meta = {};
 
-    result.push({
+    if (fs.existsSync(metaPath)) {
+      meta = JSON.parse(fs.readFileSync(metaPath, "utf-8"));
+    }
+
+    const thumbnailPath = meta.thumbnail
+      ? path.join(gameDir, meta.thumbnail)
+      : null;
+
+    return {
       title: meta.title || dir,
       description: meta.description || "",
-      thumbnail: `/games/${dir}/${meta.thumbnail || ""}`,
-      url: `/games/${dir}/`
-    });
-  }
-});
+      thumbnail:
+        thumbnailPath && fs.existsSync(thumbnailPath)
+          ? `games/${dir}/${meta.thumbnail}`
+          : "",
+      url: `games/${dir}/`,
+    };
+  })
+  .filter(Boolean)
+  .sort((a, b) => a.title.localeCompare(b.title, "ja"));
 
-fs.mkdirSync(path.join(__dirname, "../data"), { recursive: true });
-
+fs.mkdirSync(path.dirname(outputFile), { recursive: true });
 fs.writeFileSync(outputFile, JSON.stringify(result, null, 2));
 
-console.log("✅ games.json generated");
+console.log(`✅ games.json generated (${result.length} games)`);
