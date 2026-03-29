@@ -4,40 +4,159 @@
   <meta charset="UTF-8">
   <title>🎮 ブラウザゲーム集</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    .game { border: 1px solid #ccc; padding: 10px; margin: 10px; width: 220px; display:inline-block; }
-    img { width: 200px; height: 120px; object-fit: cover; }
+    :root {
+      color-scheme: light;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    #status {
+      margin-top: 12px;
+      color: #4b5563;
+    }
+
+    #games {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .game {
+      display: block;
+      overflow: hidden;
+      border: 1px solid #d7deea;
+      border-radius: 16px;
+      background: #fff;
+      color: inherit;
+      text-decoration: none;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .thumb,
+    .thumb-placeholder {
+      width: 100%;
+      height: 140px;
+    }
+
+    .thumb {
+      display: block;
+      object-fit: cover;
+      background: #e5e7eb;
+    }
+
+    .thumb-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #dbeafe, #e9d5ff);
+      font-size: 40px;
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    .content h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
   </style>
 </head>
 
 <body>
-  <h1>🎮 ゲーム一覧</h1>
-  <div id="games"></div>
+  <main>
+    <h1>🎮 ゲーム一覧</h1>
+    <p>gamesフォルダ内のゲームを表示します。</p>
+    <p id="status">読み込み中...</p>
+    <div id="games"></div>
+  </main>
 
 <script>
-  const base = window.location.pathname.includes("your-repo-name")
-    ? "/game/"
-    : "/";
+  const container = document.getElementById("games");
+  const status = document.getElementById("status");
 
-  fetch(base + "data/games.json")
-    .then(res => res.json())
-    .then(games => {
-      const container = document.getElementById("games");
+  function createGameCard(game) {
+    const link = document.createElement("a");
+    link.className = "game";
+    link.href = game.url;
 
-      games.forEach(game => {
-        const el = document.createElement("div");
-        el.className = "game";
-
-        el.innerHTML = `
-          <a href="${base}${game.url}">
-            <img src="${base}${game.thumbnail}" onerror="this.style.display='none'">
-            <h3>${game.title}</h3>
-          </a>
-          <p>${game.description}</p>
-        `;
-
-        container.appendChild(el);
+    if (game.thumbnail) {
+      const image = document.createElement("img");
+      image.className = "thumb";
+      image.src = game.thumbnail;
+      image.alt = game.title;
+      image.addEventListener("error", () => {
+        image.replaceWith(createThumbPlaceholder());
       });
+      link.appendChild(image);
+    } else {
+      link.appendChild(createThumbPlaceholder());
+    }
+
+    const content = document.createElement("div");
+    content.className = "content";
+    content.innerHTML = `
+      <h2>${game.title}</h2>
+      <p>${game.description || "説明はまだありません。"}</p>
+    `;
+    link.appendChild(content);
+
+    return link;
+  }
+
+  function createThumbPlaceholder() {
+    const placeholder = document.createElement("div");
+    placeholder.className = "thumb-placeholder";
+    placeholder.textContent = "🎮";
+    return placeholder;
+  }
+
+  fetch("./data/games.json")
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Failed to load games.json: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then((games) => {
+      container.innerHTML = "";
+
+      if (!Array.isArray(games) || games.length === 0) {
+        status.textContent = "表示できるゲームがありません。gamesフォルダを確認してください。";
+        return;
+      }
+
+      games.forEach((game) => {
+        container.appendChild(createGameCard(game));
+      });
+
+      status.textContent = `${games.length}件のゲームを表示しています。`;
+    })
+    .catch((error) => {
+      console.error(error);
+      status.textContent = "ゲーム一覧の読み込みに失敗しました。data/games.json を再生成してください。";
     });
 </script>
 </body>

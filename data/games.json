@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "title": "ペンギンアドベンチャー",
+    "description": "ペンギンの冒険ゲーム",
+    "thumbnail": "",
+    "url": "games/penguin-adventure/"
+  },
+  {
+    "title": "忍者アドベンチャー",
+    "description": "忍者ゲーム",
+    "thumbnail": "",
+    "url": "games/ninjya-game/"
+  }
+]
