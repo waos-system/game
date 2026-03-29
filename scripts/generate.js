@@ -1,8 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const gamesDir = path.join(__dirname, "../games");
-const outputFile = path.join(__dirname, "../data/games.json");
+const gamesDir = "games";
+const outputFile = "data/games.json";
 
 const result = [];
 
