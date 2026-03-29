@@ -1,7 +1,13 @@
 [
   {
-    "title": "�y���M���A�h�x���`���[",
-    "description": "�y���M���̖`���Q�[��",
+    "title": "忍者アドベンチャー",
+    "description": "忍者ゲーム",
+    "thumbnail": "/games/ninjya-game/thumbnail.png",
+    "url": "/games/ninjya-game/"
+  },
+  {
+    "title": "ペンギンアドベンチャー",
+    "description": "ペンギンの冒険ゲーム",
     "thumbnail": "/games/penguin-adventure/thumbnail.png",
     "url": "/games/penguin-adventure/"
   }
