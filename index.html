@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>🎮 ブラウザゲーム集</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .game { border: 1px solid #ccc; padding: 10px; margin: 10px; width: 220px; display:inline-block; }
+    img { width: 200px; height: 120px; object-fit: cover; }
+  </style>
+</head>
+<body>
+  <h1>🎮 ゲーム一覧</h1>
+  <div id="games"></div>
+
+  <script>
+    fetch("data/games.json")
+      .then(res => res.json())
+      .then(games => {
+        const container = document.getElementById("games");
+
+        games.forEach(game => {
+          const el = document.createElement("div");
+          el.className = "game";
+
+          el.innerHTML = `
+            <a href="${game.url}">
+              <img src="${game.thumbnail}" onerror="this.style.display='none'">
+              <h3>${game.title}</h3>
+            </a>
+            <p>${game.description}</p>
+          `;
+
+          container.appendChild(el);
+        });
+      });
+  </script>
+</body>
+</html>
